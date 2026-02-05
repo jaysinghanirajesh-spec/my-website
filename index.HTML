@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Forever Sukoon | Jayu</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lora:ital,wght@0,400;1,600&family=Cinzel:wght@400;700&display=swap');
+
+        :root { 
+            --gold: #d4af37; 
+            --deep-red: #4a0404;
+            --btn-primary: #800020; 
+            --btn-secondary: #b45f2d; 
+            --text-glow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        
+        body { 
+            margin: 0; padding: 0; font-family: 'Lora', serif; 
+            background: linear-gradient(135deg, #1a0101 0%, #4a0404 50%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fdfaf3; overflow-x: hidden; 
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .hearts-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .floating-heart { position: absolute; color: rgba(255, 50, 100, 0.2); animation: float 6s infinite ease-in; }
+        @keyframes float { 0% { transform: translateY(110vh) scale(0.5); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1.2); opacity: 0; } }
+
+        .page { display: none; min-height: 100vh; width: 100vw; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; }
+        .active { display: flex; flex-direction: column; animation: romanticFade 1s ease; }
+        @keyframes romanticFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .framed-card { 
+            background: rgba(15, 0, 0, 0.85); padding: 45px 25px; 
+            border: 1px solid var(--gold); position: relative; max-width: 450px; width: 100%;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.4); backdrop-filter: blur(10px);
+        }
+        .framed-card::before, .framed-card::after { content: ""; position: absolute; width: 50px; height: 50px; border: 3px solid var(--gold); }
+        .framed-card::before { top: -8px; left: -8px; border-right: 0; border-bottom: 0; }
+        .framed-card::after { bottom: -8px; right: -8px; border-left: 0; border-top: 0; }
+
+        .praise-tag { font-family: 'Cinzel'; font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 10px; text-shadow: var(--text-glow); }
+        
+        .envelope-wrapper { cursor: pointer; width: 170px; height: 110px; margin: 30px auto; position: relative; transition: 0.3s; }
+        .envelope { width: 100%; height: 100%; background: #6b0f0f; border-radius: 4px; border: 1px solid var(--gold); }
+        .envelope:after { content: ""; position: absolute; top: 0; left: 0; border-left: 85px solid transparent; border-right: 85px solid transparent; border-top: 70px solid var(--gold); }
+        .heart-seal { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); font-size: 2.2rem; z-index: 3; filter: drop-shadow(0 0 10px #ff0000); }
+
+        .btn { 
+            background: var(--btn-primary); color: white; padding: 16px; 
+            border: 1px solid var(--gold); border-radius: 5px; cursor: pointer; 
+            font-family: 'Cinzel'; font-weight: bold; margin-top: 15px; width: 100%; transition: 0.3s;
+        }
+        .btn:hover { background: var(--btn-secondary); transform: scale(1.02); }
+        .btn-alt { background: var(--btn-secondary); }
+
+        .input-field { background: transparent; border: none; border-bottom: 2px solid var(--gold); color: white; font-size: 1.4rem; text-align: center; width: 90%; outline: none; margin: 20px 0; font-family: 'Dancing Script'; }
+        .pasandida { font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: var(--gold); margin: 10px 0; }
+
+        .notif-item { background: rgba(255, 255, 255, 0.1); border-left: 4px solid var(--gold); padding: 12px; margin: 8px 0; border-radius: 8px; text-align: left; font-size: 0.9rem; animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        #timer-display { font-family: 'Cinzel'; font-size: 2rem; color: var(--gold); margin: 20px 0; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="hearts-container" id="hearts-bg"></div>
+
+    <div id="p-lock" class="page active">
+        <div class="praise-tag">PATIENCE IS VIRTUE, MY SEXY MAN... ⏳</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">Locked Until MY FAVOURITE PERSON'S DAY STARTS 😘🔒</h2>
+            <p>Your surprise is preparing itself. Come back at 12:00 AM sharp! 😉</p>
+            <div id="timer-display">Calculating...</div>
+            <div id="unlock-area" style="display:none;">
+                <p class="pasandida">It's time! 💋</p>
+                <button class="btn" onclick="startSurprise()">Open Your Gift 🎁</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="p1" class="page">
+        <div class="praise-tag">TO MY HANDSOME & SEXY HUMAN 🫣🔥</div>
+        <div class="framed-card">
+            <p style="font-family: 'Cinzel'; letter-spacing: 4px; color: var(--gold);">PRIVATE CORRESPONDENCE 💌</p>
+            <div class="envelope-wrapper" onclick="nextPage(2)">
+                <div class="envelope"><div class="heart-seal">❤️</div></div>
+            </div>
+            <p class="pasandida">Tap to Open, My hottiee 💋🔥</p>
+            <p style="font-size: 0.8rem; opacity: 0.8;">FOR THE MOST CHARMING MAN ALIVE 👑</p>
+        </div>
+    </div>
+
+    <div id="p2" class="page">
+        <div class="praise-tag">MY FAVOURITE HUMAN, MY HOME 🫂</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">Why Today Is Special 🌟</h2>
+            <p id="special-text" style="font-size: 1.3rem; min-height: 60px;"></p>
+            <button class="btn" id="special-btn" onclick="showSpecial()">click to know why, Handsome... 🤔</button>
+        </div>
+    </div>
+
+    <div id="p3" class="page">
+        <div class="praise-tag">MY CHARMING JAYU 🫠🫦</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">Things I Love About You ❤️</h2>
+            <div id="love-list" style="text-align: left; margin: 15px 0; font-size: 1.1rem; line-height: 1.8;"></div>
+            <button class="btn" id="love-btn" onclick="showLove()">See more, My Sexy Man 😍</button>
+        </div>
+    </div>
+
+    <div id="p4" class="page">
+        <div class="praise-tag">MY SAFE PLACE, MY SUKOON ⚓</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel';">Alerts for Hot Jayu 🔥🔔</h2>
+            <div id="notif-box"></div>
+            <button class="btn" id="notif-btn" onclick="showNotifs()">Check Your Messages 📲</button>
+        </div>
+    </div>
+
+    <div id="p5" class="page">
+        <div class="praise-tag">MY HANDSOME HERO 😘🦸‍♂️</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">Jayuu’s Royal Horoscope 🔮</h2>
+            <p style="font-size: 1.1rem; line-height: 2;">
+                ✨ You will look extra hot and cute today my pookie😘🔥<br>
+                ✨ You will be showered with my love ❤️<br>
+                ✨ Someone (Me) will annoy you with kisses 😘
+            </p>
+            <button class="btn" onclick="nextPage(6)">Next, My Sexy Man ➡️</button>
+        </div>
+    </div>
+
+    <div id="p6" class="page">
+        <div class="praise-tag">MY EVERYTHING, MY SUKOON 🤗🎶</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">If Jayuu Were a Song 🎶</h2>
+            <p><b>Mood:</b> Deeply Addictive & Charming 🫦</p>
+            <p><b>Lyrics:</b> A masterpiece of beauty and grace 😌</p>
+            <p><b>Owner:</b> Property of Yours Truly ❤️</p>
+            <button class="btn" onclick="nextPage(7)">Keep Going, my cutiepie 😘🎵</button>
+        </div>
+    </div>
+
+    <div id="p7" class="page">
+        <div class="praise-tag">MY FAVOURITE HUMAN IN THE WORLD 🌍</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">Why You're My Safe Place ❤️</h2>
+            <p id="thing-text" style="font-size: 1.4rem; font-weight: bold; margin: 20px 0;">...</p>
+            <button class="btn" onclick="showThings()">Reveal a Secret 🕯️</button>
+        </div>
+    </div>
+
+    <div id="p8" class="page">
+        <div class="praise-tag">MY CHARMING & SEXY JAYU 🫦</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel';">Birthday Surprise 🛑</h2>
+            <button class="btn" style="background: #333;" onclick="doNotClick()">DO NOT CLICK 🛑</button>
+            <p id="warn-msg" style="margin-top: 20px; font-weight: bold;"></p>
+        </div>
+    </div>
+
+    <div id="p9" class="page">
+        <div class="praise-tag">MY HOME, MY SUKOON, MY LOVE 🏠</div>
+        <div class="framed-card" style="text-align: left;">
+            <h2 style="font-family: 'Cinzel'; color: #ff4d4d; text-align: center;">🚨 SECURITY BREACH</h2>
+            <p style="font-size: 1rem; line-height: 1.8;">
+                <b>TO:</b> The Most Handsome Jayu💋🧿 <br>
+                <b>SUBJECT:</b> Illegal Occupation of My Heart <br><br>
+                My sexy human, you have been living inside my heart rent-free for 7 years. You are too hot to be roaming around freely. 👑 <br><br>
+                Identity verification is now required for my Favourite Human.
+            </p>
+            <button class="btn" onclick="nextPage(10)">Verify My Handsome Man 🆔</button>
+        </div>
+    </div>
+
+    <div id="p10" class="page">
+        <div class="praise-tag">MY SEXY & CHARMING PARTNER 🔥</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel';">Unlock My Heart 🔐</h2>
+            <p>Enter the secret name I call you... (Take your time, Handsome) 🤫</p>
+            <input type="text" id="pwField" class="input-field" placeholder="Type here...">
+            <button class="btn" onclick="checkPassword()">Verify My Sukoon 🔓</button>
+        </div>
+    </div>
+
+    <div id="p_wish" class="page">
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold);">Make a Wish,My love😚 💫</h2>
+            <p>Close your eyes, think of something, and type it here. You can't move forward without telling me! 😉🤫</p>
+            <input type="text" id="wishBox" class="input-field" placeholder="I wish for...">
+            <button class="btn" onclick="verifyWish()">Next, Handsome ➡️</button>
+        </div>
+    </div>
+
+    <div id="p_excuse" class="page">
+        <div class="praise-tag">JUST FOR YOU 😍</div>
+        <div class="framed-card">
+            <h2 style="font-family: 'Cinzel'; color: var(--gold); margin-bottom: 20px;">Why ur nehu is smiling?😚 </h2>
+            <div id="excuse-area" style="min-height: 200px;"></div>
+            <button class="btn btn-alt" id="exc-btn" onclick="showExcuseNotif()">Receive Excuse 📲</button>
+            <button id="excuse-next" class="btn" style="display:none" onclick="nextPage(11)">Continue to Crimes ⚖️</button>
+        </div>
+    </div>
+
+    <div id="p11" class="page"><div class="framed-card"><div class="praise-tag">HOT JAYU</div><p class="pasandida">Crime #1 ⚖️</p><p><b>The Smile Trap:</b> Your charming smile resets my anger instantly. How can someone be this handsome and dangerous? It's unfair! 😤</p><button class="btn" onclick="saveChoice(1, 'Admit', 12)">I Admit It ✋</button><button class="btn btn-alt" onclick="saveChoice(1, 'Lie', 12)">It's a lie! 😂</button></div></div>
+    <div id="p12" class="page"><div class="framed-card"><div class="praise-tag">SEXY JAYU</div><p class="pasandida">Crime #2 ⚖️</p><p><b>Voice Hypnosis:</b> My sexy human uses his voice to calm me down. It’s like therapy for my soul. You are truly my sukoon. 🧙‍♂️</p><button class="btn" onclick="saveChoice(2, 'Admit', 13)">Guilty 😌</button><button class="btn btn-alt" onclick="saveChoice(2, 'Lie', 13)">Not me! 😜</button></div></div>
+    <div id="p13" class="page"><div class="framed-card"><div class="praise-tag">CHARMING JAYU</div><p class="pasandida">Crime #3 ⚖️</p><p><b>Chronological Delay:</b> My handsome man took 29 years to find me. Why did my safe place take so long to arrive? 🏃‍♂️</p><button class="btn" onclick="saveChoice(3, 'Admit', 14)">My Bad! 🏃‍♂️</button><button class="btn btn-alt" onclick="saveChoice(3, 'Lie', 14)">God's Timing ✨</button></div></div>
+    <div id="p14" class="page"><div class="framed-card"><div class="praise-tag">MY FAVOURITE HUMAN</div><p class="pasandida">Crime #4 ⚖️</p><p><b>Heart Hacking:</b> You hacked my life and became my home. You make me blush with just a look, you hot hacker. 💻</p><button class="btn" onclick="saveChoice(4, 'Admit', 15)">Expert Hacker 💻</button><button class="btn btn-alt" onclick="saveChoice(4, 'Lie', 15)">Natural Charm ✨</button></div></div>
+    <div id="p15" class="page"><div class="framed-card"><div class="praise-tag">MY SUKOON</div><p class="pasandida">Crime #5 ⚖️</p><p><b>Unauthorized Comfort:</b> You became my safe place. Your presence is my only peace, my handsome human. 🫂</p><button class="btn" onclick="saveChoice(5, 'Admit', 16)">I'm your home 🫂</button><button class="btn btn-alt" onclick="saveChoice(5, 'Lie', 16)">You are mine 🫂</button></div></div>
+    <div id="p16" class="page"><div class="framed-card"><div class="praise-tag">MY HANDSOME MAN</div><p class="pasandida">Crime #6 ⚖️</p><p><b>Serial Heart Stealer:</b> You make me fall for you more every day. There is no escape from my sexy thief! ❤️</p><button class="btn" onclick="saveChoice(6, 'Admit', 17)">Accepted 😍</button><button class="btn btn-alt" onclick="saveChoice(6, 'Lie', 17)">It's Magic ✨</button></div></div>
+
+    <div id="p17" class="page"><div class="framed-card"><h2>Statement 1️⃣</h2><p>My hot human, what is the one thing I do that makes you blush the absolute most? 😊</p><input type="text" id="qa1" class="input-field" placeholder="..."><button class="btn" onclick="nextPage(18)">Next, Sexy ➡️</button></div></div>
+    <div id="p18" class="page"><div class="framed-card"><h2>Statement 2️⃣</h2><p>My charming Jayu, where was the exact moment you realized I was your safe place? 📍❤️</p><input type="text" id="qa2" class="input-field" placeholder="..."><button class="btn" onclick="nextPage(19)">The Final Verdict ⚖️</button></div></div>
+
+    <div id="p19" class="page">
+        <div class="framed-card">
+            <p class="pasandida">To My Sukoon, My Home... 💍</p>
+            <p style="line-height: 1.8; font-size: 1.1rem;">
+               Happiest Birthday My pasandida mard,my future husband,handsome, hot and sexy Jayu💋😘. May god give you lots of happiness and good health. Stay happy,healthy and blessed✨🧿🏠.Take care of yourself,my love , Your health matters so much to me. Please stay strong, because you are the center of my world🌍🤗 You are my only peace in this chaos. I want to wake up to your face for the rest of my life. <br><br>
+                I promise to be yours for a lifetime. We will be together by the end of this year. I am yours, and you are mine. ❤️
+            </p>
+            <h3 style="font-family: 'Cinzel'; color: var(--gold);">Will you be mine forever and marry me? 💍✨</h3>
+            <button class="btn" onclick="finish('YES')">YES, A MILLION TIMES! 💍❤️</button>
+            <button class="btn" style="background: #444;" onclick="finish('NO')">No (You can't say no to me 😉)</button>
+        </div>
+    </div>
+
+    <script>
+        const phone = "919484978997"; 
+        let choices = [];
+        let excCount = 0;
+
+        // --- UPDATED TIMER FOR FEB 6 ---
+        function updateTimer() {
+            const now = new Date();
+            // Sets date to Feb 6th, 2026, 00:00:00
+            const target = new Date(2026, 1, 6, 0, 0, 0); 
+
+            const diff = target - now;
+
+            if (diff <= 0) {
+                document.getElementById('timer-display').style.display = 'none';
+                document.getElementById('unlock-area').style.display = 'block';
+                return;
+            }
+
+            const h = Math.floor((diff / (1000 * 60 * 60)));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('timer-display').innerHTML = 
+                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        function startSurprise() {
+            nextPage(1);
+        }
+
+        // --- CORE GAME LOGIC ---
+        function nextPage(n) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            let targetId = typeof n === 'string' ? n : 'p' + n;
+            document.getElementById(targetId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showSpecial() {
+            const spec = ["Because it’s your birthday, Handsome 🎂", "Because you exist, My Sukoon 😌", "Because I’m glad you’re here, My Sexy Human ❤️"];
+            let t = document.getElementById('special-text');
+            let idx = spec.indexOf(t.innerText);
+            if(idx < spec.length - 1) t.innerText = spec[idx + 1];
+            else nextPage(3);
+        }
+
+        function showLove() {
+            const loveArray = ["Your sexy smile 😊", "Your charming eyes 😍", "How you make me feel safe 🫂", "Your tolerating nature 🤭","My Lolipop🍭", "Basically, I love everything about you! 🔥"];
+            let list = document.getElementById('love-list');
+            if(list.children.length < loveArray.length) {
+                let d = document.createElement('div'); d.className="notif-item"; d.innerText = "✨ " + loveArray[list.children.length];
+                list.appendChild(d);
+            } else nextPage(4);
+        }
+
+        function showNotifs() {
+            const nots = ["🔔 Reminder: Look in the mirror, you're hot🔥", "🔔 Message: I miss my Favourite Human 👀", "🔔 Alert: Happy Birthday to my Sexy Man 🎉", "🔔 Final: Love and Kisses incoming ❤️"];
+            let box = document.getElementById('notif-box');
+            if(box.children.length < nots.length) {
+                let d = document.createElement('div'); d.className="notif-item"; d.innerText = nots[box.children.length]; box.appendChild(d);
+            } else nextPage(5);
+        }
+
+        function showExcuseNotif() {
+            const excuses = [
+                "💬 Jayu Notification: My partner is looking extra sexy today. 😍",
+                "💬 Hot Alert: Jayu is just naturally this hot. 🔥",
+                "💬 Sukoon Log: Thinking about my sukoon. 😌",
+                "💬 Heart Update: Because I'm so lucky to have you. ❤️"
+            ];
+            let area = document.getElementById('excuse-area');
+            if(excCount < excuses.length) {
+                let d = document.createElement('div'); d.className="notif-item"; d.innerText = excuses[excCount++];
+                area.appendChild(d);
+            }
+            if(excCount === excuses.length) {
+                document.getElementById('exc-btn').style.display = "none";
+                document.getElementById('excuse-next').style.display = "block";
+            }
+        }
+
+        function showThings() {
+            const thngs = ["Your sexy smile 😊", "Your charming eyes 😍", "The way you make me feel safe 🫂", "The way you tolerate my drama 🤭", "Basically, I love everything about you! 🔥"];
+            let t = document.getElementById('thing-text');
+            let idx = thngs.indexOf(t.innerText);
+            if(idx < thngs.length - 1) t.innerText = thngs[idx+1];
+            else nextPage(8);
+        }
+
+        function doNotClick() {
+            confetti({ particleCount: 200, spread: 70 });
+            document.getElementById('warn-msg').innerText = "I said don’t… but Happy Birthday to most Handsome man, love you so much! 😘💋🎂🎉";
+            setTimeout(() => nextPage(9), 2000);
+        }
+
+        function checkPassword() {
+            if(/^jayu+$/.test(document.getElementById('pwField').value.toLowerCase().trim())) nextPage('p_wish');
+            else alert("Try again, My Sexy Man! 🤫");
+        }
+
+        function verifyWish() {
+            if(document.getElementById('wishBox').value.trim() === "") alert("Make a wish first,,My love😚! ✨");
+            else nextPage('p_excuse');
+        }
+
+        function saveChoice(c, val, n) { choices.push(`Crime ${c}: ${val}`); nextPage(n); }
+
+        function finish(ans) {
+            const report = `JAYU'S AUDIT ❤️\nWISH: ${document.getElementById('wishBox').value}\nCRIMES: ${choices.join(', ')}\nQ1: ${document.getElementById('qa1').value}\nQ2: ${document.getElementById('qa2').value}\nMARRY ME? ${ans}`;
+            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(report)}`;
+        }
+
+        // Heart Background
+        setInterval(() => {
+            const h = document.createElement('div'); h.className = 'floating-heart'; 
+            h.innerHTML = ['❤️', '🎈', '🌸', '🌹'][Math.floor(Math.random() * 4)];
+            h.style.left = Math.random() * 100 + 'vw'; h.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            document.getElementById('hearts-bg').appendChild(h);
+            setTimeout(() => h.remove(), 6000);
+        }, 300);
+    </script>
+</body>
+</html>
